@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f9f9f7" id="themeMeta">
+  <title>ClearPix — Cross-Platform AI Photo Enhancer | Rahulprasad Veeramani</title>
+  <meta name="description" content="Enhance photos on any device with AI-powered Real-ESRGAN upscaling. Works across Android, iPhone, Windows, and macOS browsers with 2× and 4× super-resolution.">
+  <link rel="canonical" href="{{ request.base_url }}">
+  <meta name="author" content="Rahulprasad Veeramani">
+
+  <!-- Social & Open Graph Metadata -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ClearPix — Cross-Platform AI Photo Enhancer | Rahulprasad Veeramani">
+  <meta property="og:description" content="Enhance photos on any device with AI-powered Real-ESRGAN upscaling. Works across Android, iPhone, Windows, and macOS browsers with 2× and 4× super-resolution.">
+  <meta property="og:url" content="{{ request.base_url }}">
+  <meta property="og:site_name" content="ClearPix AI Photo Enhancer">
+  <meta property="og:image" content="{{ request.base_url }}static/og-preview.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="ClearPix Cross-Platform AI Photo Enhancer by Rahulprasad Veeramani">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ClearPix — Cross-Platform AI Photo Enhancer | Rahulprasad Veeramani">
+  <meta name="twitter:description" content="Use ClearPix on your phone, tablet, or computer. Upload a photo, enhance it with AI, and download the result.">
+  <meta name="twitter:image" content="{{ request.base_url }}static/og-preview.png">
+
+  <!-- Favicon (SVG Brand Mark) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23161814'/%3E%3Ctext x='50%25' y='55%25' font-size='22' font-weight='bold' fill='%23bbf444' text-anchor='middle' dominant-baseline='central'%3E✳%3C/text%3E%3C/svg%3E">
+
+  <!-- Structured Data: Person & WebApplication (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": "{{ request.base_url }}#creator",
+        "name": "Rahulprasad Veeramani",
+        "jobTitle": "Branch Head (India)",
+        "worksFor": {
+          "@type": "Organization",
+          "name": "CyberWolf Team",
+          "url": "https://www.cyberwolf360.in/"
+        },
+        "url": "{{ request.base_url }}",
+        "knowsAbout": [
+          "Artificial Intelligence",
+          "Computer Vision",
+          "Deep Learning",
+          "Image Super-Resolution",
+          "Real-ESRGAN",
+          "Software Engineering"
+        ]
+      },
+      {
+        "@type": "WebApplication",
+        "@id": "{{ request.base_url }}#app",
+        "name": "ClearPix",
+        "alternateName": "ClearPix AI Photo Enhancer",
+        "url": "{{ request.base_url }}",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "All",
+        "description": "ClearPix is a cross-platform AI photo enhancer and super-resolution upscaler built by Rahulprasad Veeramani, Branch Head (India) @ CyberWolf Team, powered by Real-ESRGAN x4plus. Enhance photos on any device directly in modern web browsers.",
+        "creator": {
+          "@id": "{{ request.base_url }}#creator"
+        },
+        "author": {
+          "@id": "{{ request.base_url }}#creator"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- Prevent Flash of Incorrect Theme (FOUC) -->
+  <script>
+    (function() {
+      try {
+        const stored = localStorage.getItem('clearpix-theme');
+        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const activeTheme = stored || (systemDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', activeTheme);
+        const meta = document.getElementById('themeMeta');
+        if (meta) {
+          meta.setAttribute('content', activeTheme === 'dark' ? '#0f100e' : '#f9f9f7');
+        }
+      } catch (e) {}
+    })();
+  </script>
+
+  <!-- Modern Typography: Plus Jakarta Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=4.0">
+</head>
+<body>
+  <!-- Ambient 3D Animated Background Lighting -->
+  <div class="ambient-backdrop" aria-hidden="true">
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-grid"></div>
+  </div>
+
+  <!-- 1. Top Navigation Bar -->
+  <!-- 1. Top Navigation Bar -->
+  <header class="topbar" id="mainHeader">
+    <div class="topbar-inner">
+      <div class="brand-group">
+        <a class="brand" href="/" aria-label="ClearPix Home">
+          <span class="brand-mark">✳</span>
+          <span class="brand-text">ClearPix<span class="dot">.</span></span>
+        </a>
+        <span class="brand-descriptor">AI Photo Enhancer</span>
+      </div>
+
+      <!-- Desktop Navigation Links (visible on desktop/laptop) -->
+      <nav class="nav-links desktop-nav" aria-label="Desktop Navigation">
+        <a href="#workspace" class="nav-link active">Enhance</a>
+        <a href="#howItWorks" class="nav-link">How it works</a>
+        <a href="#how" class="nav-link">Architecture</a>
+        <a href="#creator" class="nav-link">Creator</a>
+        <a href="#faq" class="nav-link">FAQ</a>
+        
+        <div class="privacy-pill" id="deviceBadge" title="Neural image super-resolution powered by Real-ESRGAN x4plus">
+          <span class="green-dot"></span>
+          <span id="deviceText">Real-ESRGAN x4plus · AI Engine</span>
+        </div>
+      </nav>
+
+      <!-- Right Header Controls: Theme Toggle & Mobile Menu Button -->
+      <div class="topbar-controls">
+        <button type="button" id="themeToggleBtn" class="theme-toggle-btn" aria-label="Toggle dark and light mode" title="Toggle theme">
+          <span class="theme-icon sun-icon" aria-hidden="true">☀️</span>
+          <span class="theme-icon moon-icon" aria-hidden="true">🌙</span>
+        </button>
+
+        <button type="button" id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobileDrawer">
+          <span class="hamburger-box" aria-hidden="true">
+            <span class="hamburger-bar top-bar"></span>
+            <span class="hamburger-bar mid-bar"></span>
+            <span class="hamburger-bar bot-bar"></span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Slide-Down / Fullscreen Drawer Navigation -->
+    <div class="mobile-drawer" id="mobileDrawer" aria-hidden="true">
+      <div class="mobile-drawer-inner">
+        <div class="mobile-drawer-status">
+          <div class="privacy-pill mobile-status-pill">
+            <span class="green-dot"></span>
+            <span id="mobileDeviceText">Real-ESRGAN x4plus · AI Engine</span>
+          </div>
+        </div>
+
+        <nav class="mobile-nav-menu" aria-label="Mobile Navigation">
+          <a href="#workspace" class="mobile-nav-item active">
+            <span class="nav-item-icon">✨</span>
+            <span class="nav-item-text">Enhance Photo</span>
+            <span class="nav-item-arrow" aria-hidden="true">→</span>
+          </a>
+          <a href="#howItWorks" class="mobile-nav-item">
+            <span class="nav-item-icon">⚡</span>
+            <span class="nav-item-text">How It Works</span>
+            <span class="nav-item-arrow" aria-hidden="true">→</span>
+          </a>
+          <a href="#how" class="mobile-nav-item">
+            <span class="nav-item-icon">🧠</span>
+            <span class="nav-item-text">Architecture</span>
+            <span class="nav-item-arrow" aria-hidden="true">→</span>
+          </a>
+          <a href="#creator" class="mobile-nav-item">
+            <span class="nav-item-icon">👤</span>
+            <span class="nav-item-text">About the Creator</span>
+            <span class="nav-item-arrow" aria-hidden="true">→</span>
+          </a>
+          <a href="#faq" class="mobile-nav-item">
+            <span class="nav-item-icon">❓</span>
+            <span class="nav-item-text">FAQ</span>
+            <span class="nav-item-arrow" aria-hidden="true">→</span>
+          </a>
+          <a href="/privacy" class="mobile-nav-item">
+            <span class="nav-item-icon">🔒</span>
+            <span class="nav-item-text">Privacy Policy</span>
+            <span class="nav-item-arrow" aria-hidden="true">→</span>
+          </a>
+        </nav>
+
+        <div class="mobile-drawer-footer">
+          <p class="mobile-attribution">
+            Made by <strong>Rahulprasad Veeramani</strong><br>
+            <strong class="title-bold">Branch Head (India)</strong> @ <a href="https://www.cyberwolf360.in/" target="_blank" rel="noopener noreferrer" class="cyberwolf-inline-link">CyberWolf Team <span class="external-icon" aria-hidden="true">↗</span></a>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="mobile-drawer-backdrop" id="mobileDrawerBackdrop" aria-hidden="true"></div>
+  </header>
+
+  <main class="main-container">
+    <div class="content-container">
+      <!-- 2. Hero Section -->
+      <section class="hero-section">
+        <div class="trust-pill">
+          <span class="sparkle">✦</span> AI-POWERED IMAGE ENHANCEMENT · WORKS ACROSS DEVICES
+        </div>
+        <h1 class="hero-headline">Enhance photos on any device,<br><span>pixel-perfect clarity.</span></h1>
+        <p class="hero-subtext">Use ClearPix on your phone, tablet, or computer. Upload a photo, enhance it with AI, and download the result. Tested and supported on Android, iPhone, Windows, macOS, and modern browsers.</p>
+      </section>
+
+      <!-- 3. Workspace (Uploader, Config, Processing, Comparison) -->
+      <section class="workspace" id="workspace" aria-label="AI Image Upscaler Workspace">
+        
+        <!-- State 1: Dropzone Upload State -->
+        <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Choose an image or drop one here">
+          <input id="fileInput" type="file" accept="image/png,image/jpeg,image/webp" hidden style="display:none !important;">
+          
+          <div class="upload-icon-wrap">
+            <svg class="upload-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+          </div>
+
+          <h2 class="dropzone-title">Drag & drop your photo here</h2>
+          <p class="dropzone-or">or</p>
+          
+          <button type="button" id="browseBtn" class="primary-btn browse-btn">
+            <span>Choose an image</span>
+          </button>
+
+          <div class="dropzone-specs">
+            <span class="spec-chip">JPG, PNG or WebP</span>
+            <span class="spec-divider">·</span>
+            <span class="spec-chip">Up to 25 MB</span>
+            <span class="spec-divider">·</span>
+            <span class="spec-chip">Up to 16 MP</span>
+          </div>
+        </div>
+
+        <!-- State 2: Configuration & Enhancement State -->
+        <div id="configCard" class="config-card hidden">
+          <div class="config-header">
+            <div class="file-details">
+              <div class="thumb-frame">
+                <img id="configThumbnail" class="config-thumbnail" src="" alt="Thumbnail preview">
+              </div>
+              <div class="file-meta-group">
+                <strong id="configFileName">photo.jpg</strong>
+                <p id="configFileMeta">2054 × 766 px · 1.8 MB</p>
+              </div>
+            </div>
+            <button id="cancelSelectBtn" class="quiet-btn" type="button">Change image</button>
+          </div>
+
+          <div class="config-body">
+            <!-- Processing Engine & Location Preference Selector -->
+            <div class="engine-section">
+              <div class="section-title-wrap">
+                <label class="scale-label">Processing Engine & Location</label>
+                <span class="scale-note" id="engineStatusNote">Detecting WebGPU capability...</span>
+              </div>
+              <div class="engine-selector" role="radiogroup" aria-label="Select processing preference">
+                <button type="button" class="engine-pill active" data-engine="auto" role="radio" aria-checked="true" id="engineBtnAuto">
+                  <div class="engine-pill-header">
+                    <span class="engine-badge badge-auto">⚡ Recommended</span>
+                    <strong class="engine-title">Automatic</strong>
+                  </div>
+                  <span class="engine-desc" id="engineAutoText">Fastest available: Browser GPU (WebGPU) if supported, otherwise Server AI</span>
+                </button>
+
+                <button type="button" class="engine-pill" data-engine="webgpu" role="radio" aria-checked="false" id="engineBtnWebgpu">
+                  <div class="engine-pill-header">
+                    <span class="engine-badge badge-local">🔒 100% On-Device</span>
+                    <strong class="engine-title">Browser GPU (WebGPU)</strong>
+                  </div>
+                  <span class="engine-desc" id="engineWebgpuText">Real-ESRGAN Compact on your local graphics card. Zero image upload.</span>
+                </button>
+
+                <button type="button" class="engine-pill" data-engine="server" role="radio" aria-checked="false" id="engineBtnServer">
+                  <div class="engine-pill-header">
+                    <span class="engine-badge badge-server">☁️ Backend Server</span>
+                    <strong class="engine-title">Server AI (Real-ESRGAN)</strong>
+                  </div>
+                  <span class="engine-desc">PyTorch Real-ESRGAN x4plus (RRDBNet) with dedicated hardware accelerator.</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="scale-section">
+              <div class="section-title-wrap">
+                <label class="scale-label">Super-Resolution Scale</label>
+                <span class="scale-note">Deep neural network upscaling</span>
+              </div>
+              <div class="scale-selector" role="radiogroup" aria-label="Select upscaling scale">
+                <button type="button" class="scale-pill" data-scale="2" role="radio" aria-checked="false">
+                  <span class="scale-num">2×</span>
+                  <span class="scale-desc">Sharper Details</span>
+                </button>
+                <button type="button" class="scale-pill active" data-scale="4" role="radio" aria-checked="true">
+                  <span class="scale-num">4×</span>
+                  <span class="scale-desc">Maximum AI Reconstruction</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="target-meta">
+              <span>Estimated output: <strong id="configOutputMeta">8216 × 3064 px</strong></span>
+            </div>
+
+            <!-- Error Alert Banner -->
+            <div id="errorBanner" class="error-banner hidden" role="alert">
+              <div class="error-content">
+                <span class="error-icon">⚠️</span>
+                <span id="errorMessage">An error occurred during enhancement.</span>
+              </div>
+              <button type="button" id="retryBtn" class="quiet-btn retry-btn">Retry</button>
+            </div>
+
+            <!-- Progress Bar & Honest Status Stages -->
+            <div id="progressWrap" class="progress-wrap hidden">
+              <div class="progress-bar-track">
+                <div id="progressBar" class="progress-bar-fill"></div>
+              </div>
+              <div class="progress-info">
+                <p id="progressStatus" class="progress-status" role="status">Preparing AI model...</p>
+                <span id="elapsedTimer" class="elapsed-timer">0s</span>
+              </div>
+              <!-- Honest Status Stages -->
+              <div class="progress-stages" id="progressStages" aria-label="Inference execution stages">
+                <span class="stage-step" id="stage1">1. Validation</span>
+                <span class="stage-step" id="stage2">2. Model Dispatch</span>
+                <span class="stage-step" id="stage3">3. Super-Resolution</span>
+                <span class="stage-step" id="stage4">4. Tile Assembly</span>
+                <span class="stage-step" id="stage5">5. PNG Encoding</span>
+              </div>
+            </div>
+
+            <div class="config-actions">
+              <button id="cancelEnhanceBtn" class="quiet-btn cancel-enhance-btn hidden" type="button">Cancel</button>
+              <button id="enhanceBtn" class="primary-btn enhance-btn" type="button">
+                <span class="btn-spinner hidden" id="btnSpinner"></span>
+                <span id="btnText">Enhance image</span>
+                <span class="btn-sparkle">✦</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- State 3: Dedicated 3D AI Super-Resolution Loading Screen -->
+        <div id="processingScreen" class="processing-screen hidden" aria-live="polite" aria-label="AI Super-Resolution Processing">
+          <div class="processing-card">
+            <!-- 3D Geometric Ring & Floating Glass Orb Scene -->
+            <div class="gyro-scene" aria-hidden="true">
+              <div class="gyro-ring ring-outer"></div>
+              <div class="gyro-ring ring-middle"></div>
+              <div class="gyro-ring ring-inner"></div>
+              
+              <div class="glass-orb">
+                <div class="orb-highlight"></div>
+                <div class="orb-core">
+                  <span class="orb-mark">✳</span>
+                </div>
+              </div>
+
+              <!-- Floating Micro-Particles -->
+              <div class="particles-field">
+                <span class="particle p1"></span>
+                <span class="particle p2"></span>
+                <span class="particle p3"></span>
+                <span class="particle p4"></span>
+                <span class="particle p5"></span>
+                <span class="particle p6"></span>
+                <span class="particle p7"></span>
+                <span class="particle p8"></span>
+              </div>
+            </div>
+
+            <!-- Hologram Image Scanning Reconstruction Effect -->
+            <div class="hologram-scan-stage">
+              <div class="hologram-frame">
+                <img id="procHologramImg" class="hologram-img" src="" alt="Neural reconstruction preview">
+                <div class="scan-beam"></div>
+                <div class="scan-grid-overlay"></div>
+                <div class="scan-glow-line"></div>
+              </div>
+            </div>
+
+            <!-- Processing Status & Metrics -->
+            <div class="processing-meta-wrap">
+              <div class="proc-brand-line">
+                <span class="proc-brand-text">✳ ClearPix<span class="dot">.</span></span>
+                <span class="proc-device-pill" id="procDeviceText">Real-ESRGAN · MPS</span>
+              </div>
+
+              <h3 class="proc-title" id="procStatusTitle">Preparing your image</h3>
+              <p class="proc-desc" id="procStatusDesc">Validating dimensions and tensor memory allocation...</p>
+
+              <!-- Sleek Animated Indeterminate Progress Rail -->
+              <div class="proc-rail-track" role="progressbar" aria-label="Neural inference progress">
+                <div class="proc-rail-bar"></div>
+              </div>
+
+              <!-- Elapsed Timer & Scale Badge -->
+              <div class="proc-stats-row">
+                <div class="proc-timer">
+                  <span class="timer-live-dot"></span>
+                  <span>Elapsed: <strong id="procTimerVal">0.0s</strong></span>
+                </div>
+                <div class="proc-target-scale">
+                  <span id="procScaleText">4× Super-Resolution</span>
+                </div>
+              </div>
+
+              <!-- Actual Processing Stages Strip -->
+              <div class="proc-stages-grid" id="procStagesGrid">
+                <div class="proc-step active" id="pStage1">
+                  <span class="step-num">1</span>
+                  <span class="step-label">Preparing image</span>
+                </div>
+                <div class="proc-step" id="pStage2">
+                  <span class="step-num">2</span>
+                  <span class="step-label">Loading AI model</span>
+                </div>
+                <div class="proc-step" id="pStage3">
+                  <span class="step-num">3</span>
+                  <span class="step-label">Real-ESRGAN inference</span>
+                </div>
+                <div class="proc-step" id="pStage4">
+                  <span class="step-num">4</span>
+                  <span class="step-label">Reconstructing details</span>
+                </div>
+                <div class="proc-step" id="pStage5">
+                  <span class="step-num">5</span>
+                  <span class="step-label">Preparing enhanced image</span>
+                </div>
+              </div>
+
+              <div class="proc-actions">
+                <button type="button" id="procCancelBtn" class="proc-cancel-btn">
+                  <span>Cancel processing</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- State 4: Comparison Workspace (Result) -->
+        <div id="editor" class="editor hidden">
+          <div class="editor-head">
+            <div class="editor-titles">
+              <strong id="fileName">Image</strong>
+              <p id="dimensions">Original: 2054 × 766 px</p>
+            </div>
+            <button id="resetBtn" class="quiet-btn reset-btn" type="button">Enhance another image</button>
+          </div>
+
+          <div class="preview-stage" id="previewStage">
+            <!-- Floating Zoom & Fit Toolbar -->
+            <div class="zoom-toolbar" role="toolbar" aria-label="Viewer zoom and display controls">
+              <button type="button" id="zoomOutBtn" class="zoom-btn" title="Zoom Out (−)" aria-label="Zoom Out">−</button>
+              <span id="zoomLevel" class="zoom-level">100%</span>
+              <button type="button" id="zoomInBtn" class="zoom-btn" title="Zoom In (+)" aria-label="Zoom In">+</button>
+              <span class="zoom-divider"></span>
+              <button type="button" id="fitScreenBtn" class="zoom-btn zoom-text-btn active" title="Fit to Screen">Fit</button>
+              <button type="button" id="zoom100Btn" class="zoom-btn zoom-text-btn" title="100% Actual Pixels">1:1</button>
+              <button type="button" id="zoom200Btn" class="zoom-btn zoom-text-btn" title="200% Detail Zoom">2× Zoom</button>
+              <span class="zoom-divider"></span>
+              <button type="button" id="fullscreenBtn" class="zoom-btn zoom-icon-btn" title="Toggle Fullscreen (F)" aria-label="Toggle Fullscreen">⛶</button>
+            </div>
+
+            <div class="preview-wrap" id="previewWrap">
+              <!-- Base In-Flow Layer: AI Super-Resolved Output (establishes container dimensions and crisp detail) -->
+              <img id="upscaledPreview" alt="AI super-resolved photo preview">
+              
+              <!-- Comparison Overlay (Left side): Original Photo clipped to slider position -->
+              <div id="beforePane" class="before-pane after-pane">
+                <img id="previewImage" alt="Original photo preview">
+              </div>
+
+              <div class="preview-label before-label">ORIGINAL</div>
+              <div class="preview-label after-label" id="afterBadge">AI ENHANCED 4×</div>
+              
+              <input id="compareSlider" class="compare-slider" type="range" min="0" max="100" value="50" aria-label="Compare original and enhanced photo">
+              <div class="slider-line" id="sliderLine" aria-hidden="true">
+                <span class="slider-knob">↔</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Comprehensive Output Metadata Grid -->
+          <div class="metadata-grid" id="metadataGrid" aria-label="Image enhancement metrics">
+            <div class="meta-item">
+              <span class="meta-label">Original Dimensions</span>
+              <strong class="meta-val" id="metaOriginal">2054 × 766 px</strong>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Enhanced Dimensions</span>
+              <strong class="meta-val highlight-val" id="metaEnhanced">8216 × 3064 px</strong>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Scale Factor</span>
+              <strong class="meta-val" id="metaScale">4× Real-ESRGAN</strong>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Processing Time</span>
+              <strong class="meta-val" id="metaDuration">43.8s</strong>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Inference Device</span>
+              <strong class="meta-val" id="metaDevice">Server Accelerator</strong>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Engine & Location</span>
+              <strong class="meta-val" id="metaEngine">WebGPU (Client-Side)</strong>
+            </div>
+          </div>
+
+          <div class="editor-actions">
+            <div class="scale-info">
+              <span class="green-dot"></span>
+              <span id="outputDimensions">AI Enhanced (8216 × 3064 px)</span>
+            </div>
+            <button id="downloadBtn" class="primary-btn download-btn" type="button">
+              <span>Download PNG</span>
+              <span class="btn-download-arrow">↓</span>
+            </button>
+          </div>
+          <p id="status" class="status" role="status"></p>
+        </div>
+      </section>
+
+      <!-- 4. How It Works 4-Step Interactive Guide -->
+      <section class="how-it-works-section" id="howItWorks">
+        <div class="section-badge">WORKFLOW</div>
+        <h2>How ClearPix enhances your photos.</h2>
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-badge">01</div>
+            <h3>Upload Photo</h3>
+            <p>Upload any JPG, PNG, or WebP photo up to 25 MB and 16 MP. Works across Android, iPhone, Windows, and macOS browsers.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-badge">02</div>
+            <h3>Neural Processing</h3>
+            <p>The image is streamed through the 23-block Residual-in-Residual Dense Network (RRDBNet) with tiled server GPU inference.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-badge">03</div>
+            <h3>Select 2× or 4× Scale</h3>
+            <p>Choose 2× for subtle texture cleaning and sharpening, or 4× for maximum neural detail reconstruction.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-badge">04</div>
+            <h3>Compare & Download</h3>
+            <p>Inspect the result with the interactive split-screen slider, zoom in up to 400%, and download your full-resolution PNG.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. Architecture & Neural Network Engine -->
+      <section class="benefits" id="how">
+        <article class="benefit-card">
+          <div class="benefit-icon">🧠</div>
+          <h3>Official RRDBNet Architecture</h3>
+          <p>Uses the official 23-block Residual-in-Residual Dense Network trained on high-order realistic degradations to synthesize authentic photographic textures rather than blurry interpolation.</p>
+        </article>
+        <article class="benefit-card">
+          <div class="benefit-icon">⚡</div>
+          <h3>Cross-Platform Acceleration</h3>
+          <p>Accelerated via optimized PyTorch tensor inference with streaming tiled execution, processing multi-megapixel images rapidly on server hardware without client memory thrashing.</p>
+        </article>
+        <article class="benefit-card">
+          <div class="benefit-icon">🔒</div>
+          <h3>Private & Temporary Storage</h3>
+          <p>Photos are processed securely on our server. Images are assigned random UUID filenames, kept in temporary storage, automatically deleted after 1 hour, and never shared or retained.</p>
+        </article>
+      </section>
+
+      <!-- 6. Honest Capabilities & Limitations Notice -->
+      <section class="disclaimer-section">
+        <div class="disclaimer-card">
+          <div class="disclaimer-icon">ℹ️</div>
+          <div class="disclaimer-text">
+            <h4>Important Note on Neural Super-Resolution</h4>
+            <p>Real-ESRGAN dramatically improves perceived sharpness, eliminates compression artifacts, and reconstructs fine natural textures using deep learning. However, it cannot guarantee recovery of true microscopic optical information that was never recorded by the physical camera sensor.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. About Section -->
+      <section class="about-section" id="about">
+        <div class="section-badge">ABOUT CLEARPIX</div>
+        <h2>Designed for photographers & creators.</h2>
+        <div class="about-grid">
+          <div class="about-col">
+            <h4>True Neural Reconstruction</h4>
+            <p>Traditional image upscaling tools rely on bicubic or Lanczos resampling, which only mathematically blur existing pixels. ClearPix runs deep convolutional neural networks that hallucinate realistic micro-details, restore edges, and clean compression noise.</p>
+          </div>
+          <div class="about-col">
+            <h4>Privacy-First Architecture</h4>
+            <p>ClearPix processes images on our secure self-hosted server. Images are never stored in public directories, shared with third-party cloud APIs, or used for model training. Once processed, temporary files are automatically purged after 1 hour.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8. About the Creator Section -->
+      <section class="creator-section" id="creator" aria-labelledby="creator-heading">
+        <div class="section-badge">LEADERSHIP & ENGINEERING</div>
+        <h2 id="creator-heading">About the Creator</h2>
+        <div class="creator-card">
+          <div class="creator-avatar" aria-hidden="true">
+            <span class="creator-initials">RV</span>
+          </div>
+          <div class="creator-content">
+            <div class="creator-header">
+              <h3 class="creator-name">Rahulprasad Veeramani</h3>
+              <p class="creator-role-line"><strong class="title-bold">Branch Head (India)</strong> @ <a href="https://www.cyberwolf360.in/" target="_blank" rel="noopener noreferrer" class="cyberwolf-inline-link" title="CyberWolf Team Official Website">CyberWolf Team <span class="external-icon" aria-hidden="true">↗</span></a></p>
+            </div>
+            <p class="creator-bio">
+              Rahulprasad Veeramani is the Branch Head (India) at CyberWolf Team, focusing on computer vision systems, applied machine learning, and high-performance software engineering. ClearPix AI Photo Enhancer was designed and developed to provide photographers and creators with an accessible, high-performance photo upscaling tool powered by the 23-block RRDBNet neural architecture, running across modern desktop and mobile browsers.
+            </p>
+            <div class="creator-actions">
+              <a href="https://www.cyberwolf360.in/" target="_blank" rel="noopener noreferrer" class="creator-btn" title="Visit CyberWolf Team official website (opens in a new tab)">
+                <span>CyberWolf Team</span>
+                <span class="external-icon" aria-hidden="true">↗</span>
+              </a>
+              <a href="#workspace" class="creator-btn creator-btn-primary" title="Enhance your photo with ClearPix">
+                <span>Enhance a Photo</span>
+                <span>↑</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 9. FAQ Section -->
+      <section class="how-section" id="faq">
+        <div class="eyebrow">FREQUENTLY ASKED QUESTIONS</div>
+        <h2>Everything you need to know.</h2>
+        
+        <details>
+          <summary>What is Real-ESRGAN x4plus?</summary>
+          <p>Real-ESRGAN is an advanced blind super-resolution model developed by ARC Lab at Tencent PCG and Shenzhen Institutes of Advanced Technology. It models complex combinations of blur, noise, downsampling, and JPEG compression to reconstruct clean, high-resolution photographs.</p>
+        </details>
+        
+        <details>
+          <summary>Can I use ClearPix on mobile and desktop devices?</summary>
+          <p>Yes. ClearPix is fully responsive and works on Android, iPhone, iPad, Windows, macOS, and Linux across all modern browsers (Chrome, Safari, Firefox, Edge). AI enhancement is executed on the server, so you get high-quality super-resolution on any device regardless of your client hardware.</p>
+        </details>
+
+        <details>
+          <summary>How does server-side AI processing work?</summary>
+          <p>When you upload a photo, it is received securely by our backend server and passed through the pretrained Real-ESRGAN x4plus neural network. The server uses hardware acceleration (such as GPU tensor acceleration or high-throughput CPU inference) to synthesize fine details, returning a crisp, high-resolution PNG to your browser.</p>
+        </details>
+        
+        <details>
+          <summary>How are large images handled?</summary>
+          <p>Large panoramic and high-megapixel photos are divided into 512×512 tiles with overlapping padding. Completed tiles stream directly to CPU memory, preventing unified VRAM thrashing and eliminating seam artifacts.</p>
+        </details>
+
+        <details>
+          <summary>Are my uploaded photos private?</summary>
+          <p>Yes. Images uploaded to ClearPix are stored temporarily on the server solely to generate your enhanced preview and download. Files are saved with random UUID filenames in a private temporary directory and automatically deleted after 1 hour. Images are never sold, never shared with third parties, and never used to train AI models. See our <a href="/privacy" class="cyberwolf-inline-link">Privacy Policy</a> for full details.</p>
+        </details>
+      </section>
+    </div>
+  </main>
+
+  <!-- 10. Footer with Professional Attribution -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a class="brand" href="/">
+          <span class="brand-mark">✳</span>
+          <span class="brand-text">ClearPix<span class="dot">.</span></span>
+        </a>
+        <p class="footer-desc">Cross-platform AI photo super-resolution powered by Real-ESRGAN x4plus. Enhance photos on any device with genuine neural reconstruction.</p>
+        
+        <!-- Personal Attribution -->
+        <div class="footer-attribution" aria-label="Author and team attribution">
+          <p class="attribution-author">Made by <strong>Rahulprasad Veeramani</strong></p>
+          <p class="attribution-team"><strong class="title-bold">Branch Head (India)</strong> @ <a href="https://www.cyberwolf360.in/" target="_blank" rel="noopener noreferrer" class="cyberwolf-link" title="Visit CyberWolf Team official website (opens in a new tab)"><strong>CyberWolf Team</strong><span class="external-icon" aria-hidden="true">↗</span></a></p>
+        </div>
+      </div>
+
+      <div class="footer-links-group">
+        <div class="footer-col">
+          <h5>Application</h5>
+          <a href="#workspace">Enhance Photo</a>
+          <a href="#howItWorks">How it works</a>
+          <a href="#how">Architecture</a>
+          <a href="#creator">About the Creator</a>
+          <a href="#faq">FAQ</a>
+          <a href="/privacy">Privacy Policy</a>
+        </div>
+        <div class="footer-col">
+          <h5>Technology</h5>
+          <span>Real-ESRGAN x4plus</span>
+          <span>Hardware Accelerated</span>
+          <span>PyTorch Neural Net</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 ClearPix AI · <a href="/privacy" class="cyberwolf-inline-link">Privacy Policy</a> · Zero third-party telemetry.</p>
+    </div>
+  </footer>
+
+  <!-- WebGPU Inference Engine & Runtime -->
+  <script src="{{ url_for('static', filename='vendor/ort.webgpu.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='webgpu-upscaler.js') }}?v=4.0"></script>
+  <script src="{{ url_for('static', filename='app.js') }}?v=4.0"></script>
+</body>
+</html>

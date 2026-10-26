@@ -1,0 +1,77 @@
+{
+  "timestamp": 1793017329.82324,
+  "device": "mps",
+  "model_init_seconds": 0.359,
+  "input_dimensions": {
+    "width": 320,
+    "height": 240
+  },
+  "results": {
+    "2": [
+      {
+        "run": 1,
+        "inference_time": 2.357,
+        "total_wall_time": 2.511938874988118,
+        "peak_rss": 453.52,
+        "mps_alloc": 64.61,
+        "out_dim": "640x480"
+      },
+      {
+        "run": 2,
+        "inference_time": 2.227,
+        "total_wall_time": 2.381979958998272,
+        "peak_rss": 453.52,
+        "mps_alloc": 64.61,
+        "out_dim": "640x480"
+      },
+      {
+        "run": 3,
+        "inference_time": 2.201,
+        "total_wall_time": 2.360111167014111,
+        "peak_rss": 453.52,
+        "mps_alloc": 64.61,
+        "out_dim": "640x480"
+      }
+    ],
+    "4": [
+      {
+        "run": 1,
+        "inference_time": 2.177,
+        "total_wall_time": 2.6673532080021687,
+        "peak_rss": 453.52,
+        "mps_alloc": 64.61,
+        "out_dim": "1280x960"
+      },
+      {
+        "run": 2,
+        "inference_time": 2.224,
+        "total_wall_time": 2.7204217499820516,
+        "peak_rss": 453.52,
+        "mps_alloc": 64.61,
+        "out_dim": "1280x960"
+      },
+      {
+        "run": 3,
+        "inference_time": 2.176,
+        "total_wall_time": 2.664106082986109,
+        "peak_rss": 453.52,
+        "mps_alloc": 64.61,
+        "out_dim": "1280x960"
+      }
+    ]
+  },
+  "summary": {
+    "scale_2x": {
+      "inference_mean": 2.2617,
+      "inference_stdev": 0.0836,
+      "request_mean": 2.418,
+      "request_stdev": 0.0821
+    },
+    "scale_4x": {
+      "inference_mean": 2.1923,
+      "inference_stdev": 0.0274,
+      "request_mean": 2.684,
+      "request_stdev": 0.0316
+    }
+  }
+}

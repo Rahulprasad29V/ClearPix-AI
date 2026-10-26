@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f9f9f7" id="themeMeta">
+  <title>Privacy Policy — ClearPix AI Photo Enhancer</title>
+  <meta name="description" content="Learn how ClearPix handles image uploads, temporary processing, server retention, and user privacy. Transparent, privacy-preserving AI photo upscaling.">
+  <link rel="canonical" href="{{ request.base_url }}">
+  <meta name="robots" content="index, follow">
+
+  <!-- Favicon (SVG Brand Mark) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23161814'/%3E%3Ctext x='50%25' y='55%25' font-size='22' font-weight='bold' fill='%23bbf444' text-anchor='middle' dominant-baseline='central'%3E✳%3C/text%3E%3C/svg%3E">
+
+  <!-- Prevent Flash of Incorrect Theme (FOUC) -->
+  <script>
+    (function() {
+      try {
+        const stored = localStorage.getItem('clearpix-theme');
+        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const activeTheme = stored || (systemDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', activeTheme);
+        const meta = document.getElementById('themeMeta');
+        if (meta) {
+          meta.setAttribute('content', activeTheme === 'dark' ? '#0f100e' : '#f9f9f7');
+        }
+      } catch (e) {}
+    })();
+  </script>
+
+  <!-- Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=4.1">
+</head>
+<body class="privacy-page-body">
+  <!-- Ambient Background Lighting -->
+  <div class="ambient-backdrop" aria-hidden="true">
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-grid"></div>
+  </div>
+
+  <!-- Top Navigation Bar -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand-group">
+        <a class="brand" href="/" aria-label="ClearPix Home">
+          <span class="brand-mark">✳</span>
+          <span class="brand-text">ClearPix<span class="dot">.</span></span>
+        </a>
+        <span class="brand-descriptor">Privacy Policy</span>
+      </div>
+
+      <nav class="nav-links">
+        <a href="/" class="nav-link">← Back to Enhancer</a>
+        
+        <!-- Accessible Dark/Light Theme Switcher -->
+        <button type="button" id="themeToggleBtn" class="theme-toggle-btn" aria-label="Toggle dark and light mode" title="Toggle theme">
+          <span class="theme-icon sun-icon" aria-hidden="true">☀️</span>
+          <span class="theme-icon moon-icon" aria-hidden="true">🌙</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <div class="content-container">
+      <article class="privacy-article">
+        <!-- Header -->
+        <header class="privacy-header">
+          <div class="section-badge">LEGAL & PRIVACY TRANSPARENCY</div>
+          <h1 class="privacy-title">ClearPix Privacy Policy</h1>
+          <div class="privacy-meta-bar">
+            <span><strong>Effective Date:</strong> October 26, 2026</span>
+            <span class="meta-dot">·</span>
+            <span><strong>Last Updated:</strong> October 26, 2026</span>
+            <span class="meta-dot">·</span>
+            <span><strong>Status:</strong> Active</span>
+          </div>
+          <p class="privacy-lead">
+            ClearPix is committed to absolute transparency regarding how uploaded photos, technical logs, and system data are handled. This Privacy Policy details our server-side processing architecture, automated 1-hour file deletion lifecycle, zero-tracking commitment, and security safeguards.
+          </p>
+        </header>
+
+        <!-- Quick Summary Card -->
+        <div class="privacy-summary-card">
+          <h3>Summary at a Glance</h3>
+          <ul class="summary-list">
+            <li><strong>Cross-Platform Web App:</strong> Accessible on phone, tablet, or computer (Android, iPhone, Windows, macOS, Linux).</li>
+            <li><strong>Server-Side AI Processing:</strong> Uploaded images are processed on our backend server running self-hosted Real-ESRGAN x4plus.</li>
+            <li><strong>Temporary Storage Only:</strong> Enhanced outputs are stored in a private server directory and automatically purged after 1 hour (3,600 seconds).</li>
+            <li><strong>Zero AI Model Training:</strong> Your photos are never used to train, tune, or improve machine-learning models.</li>
+            <li><strong>Zero Third-Party Cloud APIs:</strong> Images are never transmitted to external AI companies, cloud vision brokers, or advertisers.</li>
+            <li><strong>No Tracking Cookies:</strong> We do not deploy advertising pixels, third-party trackers, or personal profiling algorithms.</li>
+          </ul>
+        </div>
+
+        <div class="privacy-content-flow">
+          <!-- Section 1 -->
+          <section class="privacy-section">
+            <h2>1. Who Operates ClearPix & Contact Information</h2>
+            <p>
+              ClearPix is designed, engineered, and operated by:
+            </p>
+            <div class="operator-card">
+              <p><strong>Operator:</strong> Rahulprasad Veeramani</p>
+              <p><strong>Professional Role:</strong> Branch Head (India) @ CyberWolf Team</p>
+              <p><strong>Organization Website:</strong> <a href="https://www.cyberwolf360.in/" target="_blank" rel="noopener noreferrer" class="cyberwolf-inline-link">https://www.cyberwolf360.in/ <span class="external-icon" aria-hidden="true">↗</span></a></p>
+              <p><strong>Privacy Inquiries & Removal Requests:</strong> <span class="contact-placeholder">[Operator Contact Email: privacy@cyberwolf360.in]</span></p>
+            </div>
+            <p>
+              If you have any questions about this policy, technical data handling, or wish to request immediate manual file verification, please contact the operator at the email address above.
+            </p>
+          </section>
+
+          <!-- Section 2 -->
+          <section class="privacy-section">
+            <h2>2. What Happens When You Upload a Photo</h2>
+            <p>
+              ClearPix is a cross-platform web application usable on modern web browsers across Android smartphones, iPhones, iPads, Windows PCs, macOS computers, and Linux workstations.
+            </p>
+            <p>
+              When you select or drag a photo into the ClearPix workspace and click <strong>Enhance Photo</strong>:
+            </p>
+            <ol class="privacy-numbered-list">
+              <li>
+                <strong>Encrypted HTTPS Transmission:</strong> Your image file is streamed directly from your browser to the ClearPix server API endpoint (<code>/api/enhance</code>) over TLS/HTTPS encryption.
+              </li>
+              <li>
+                <strong>In-Memory Validation:</strong> The server receives the raw byte stream directly into volatile memory (RAM). Pillow validates magic-byte image signatures (verifying genuine JPG, PNG, or WebP headers), checks dimensions (minimum 16×16 px, maximum 4096×4096 px), enforces a 25 MB file size limit, and transposes EXIF orientation metadata so your photo is never sideways.
+              </li>
+              <li>
+                <strong>Server-Side AI Inference:</strong> The decoded RGB/RGBA tensor is passed to our self-hosted Real-ESRGAN x4plus neural network. Processing executes server-side utilizing available hardware accelerators (such as GPU tensor acceleration or CPU threads). <em>Processing does not execute inside the client browser’s local JavaScript sandbox.</em>
+              </li>
+              <li>
+                <strong>Output Generation:</strong> The neural network synthesizes high-frequency textures at 2× or 4× resolution. The enhanced result is encoded as a lossless PNG image.
+              </li>
+            </ol>
+          </section>
+
+          <!-- Section 3 -->
+          <section class="privacy-section">
+            <h2>3. Where Files Are Stored & The 1-Hour Automatic Deletion Lifecycle</h2>
+            <p>
+              ClearPix is specifically designed to minimize data persistence. We practice data minimization by default:
+            </p>
+            <div class="privacy-grid">
+              <div class="privacy-subcard">
+                <h4>Original Uploads</h4>
+                <p>
+                  Original photos are held in volatile system memory (RAM) solely for the duration of inference. The raw original file is not saved to persistent disk storage.
+                </p>
+              </div>
+              <div class="privacy-subcard">
+                <h4>Enhanced Outputs</h4>
+                <p>
+                  Enhanced PNG files are saved in an internal, non-public temporary directory (<code>temp/outputs/{result_id}.png</code>). Each image is assigned a cryptographically random 32-character hexadecimal UUID (e.g., <code>b7f2a89...</code>) that cannot be enumerated.
+                </p>
+              </div>
+            </div>
+            <div class="callout-box">
+              <h4>Strict 1-Hour Automated Cleanup Policy</h4>
+              <p>
+                Every temporary enhanced image is assigned an automatic expiration timestamp of <strong>3,600 seconds (1 hour)</strong>. On every enhancement request and through periodic background sweeps, the automated lifecycle manager (<code>TempFileManager.cleanup_expired()</code>) deletes all files older than 1 hour from the server disk. No residual files, backups, or shadow copies are retained.
+              </p>
+            </div>
+          </section>
+
+          <!-- Section 4 -->
+          <section class="privacy-section">
+            <h2>4. Zero Third-Party Sharing & No AI Model Training</h2>
+            <p>
+              We believe your personal photos belong to you alone. We commit unconditionally to the following:
+            </p>
+            <ul class="privacy-bullet-list">
+              <li><strong>No Model Training:</strong> Uploaded images and enhanced outputs are never used to train, re-train, fine-tune, or evaluate machine-learning models.</li>
+              <li><strong>No Cloud Vision Brokers:</strong> ClearPix does not use third-party computer-vision APIs, commercial cloud processors, or foreign inference proxies (such as OpenAI, Google Cloud Vision, or AWS Rekognition). All neural execution is hosted directly on ClearPix infrastructure.</li>
+              <li><strong>No Data Brokers or Advertisers:</strong> We never sell, rent, monetize, or disclose uploaded photos or metadata to data brokers, marketing companies, or analytics networks.</li>
+            </ul>
+          </section>
+
+          <!-- Section 5 -->
+          <section class="privacy-section">
+            <h2>5. Cookies, Local Storage & Server Logging</h2>
+            <p>
+              ClearPix maintains a clean, tracking-free web architecture:
+            </p>
+            <ul class="privacy-bullet-list">
+              <li><strong>No Tracking Cookies:</strong> We do not set tracking cookies, session cookies, marketing pixels, or third-party advertising identifiers.</li>
+              <li><strong>Browser LocalStorage:</strong> The web interface stores exactly one item in your local browser storage: <code>clearpix-theme</code> (set to <code>"dark"</code> or <code>"light"</code>). This purely persists your preferred visual contrast across page visits and never leaves your browser.</li>
+              <li><strong>Server Diagnostic Logs:</strong> Standard HTTP server logs record request timestamps, HTTP request paths (e.g., <code>POST /api/enhance</code>), HTTP status codes, and execution duration. These logs are used solely for real-time error diagnostics and concurrency rate-limiting. Logs do not store image content.</li>
+            </ul>
+          </section>
+
+          <!-- Section 6 -->
+          <section class="privacy-section">
+            <h2>6. Security Safeguards & Honest Limitations</h2>
+            <p>
+              ClearPix implements defensive engineering safeguards at each tier:
+            </p>
+            <ul class="privacy-bullet-list">
+              <li><strong>Cryptographic Filenames:</strong> All temporary outputs use non-sequential, randomly generated 32-character hex UUIDs to prevent unauthorized URL guessing or directory enumeration.</li>
+              <li><strong>Input Validation & DecompressionBomb Guard:</strong> File headers are inspected to verify genuine JPEG, PNG, or WebP bytes. Maximum dimensions are strictly capped at 4096×4096 px and 16 MP, with Pillow's internal bomb protection set to 32 MP to prevent memory-exhaustion exploits.</li>
+              <li><strong>Path Traversal Prevention:</strong> Download filenames are sanitized with strict regular expressions (<code>re.sub(r"[^\w\-.]", "_", ...)</code>), stripping directory traversal sequences (<code>../</code>) and null-byte injections.</li>
+              <li><strong>Concurrency Semaphores:</strong> Server concurrency is protected by bounded semaphores to avoid memory contention and system thrashing.</li>
+            </ul>
+            <p class="limitations-note">
+              <em>Security Limitations:</em> While we implement robust defenses, no system connected to the Internet can guarantee absolute security. Users should not upload sensitive government-classified documents, medical records, or personally identifiable data requiring specialized regulatory compliance (such as HIPAA).
+            </p>
+          </section>
+
+          <!-- Section 7 -->
+          <section class="privacy-section">
+            <h2>7. User Rights & Manual Deletion Procedures</h2>
+            <p>
+              Because ClearPix does not require account creation, does not maintain user profiles, and automatically purges enhanced images after 1 hour, your data naturally vanishes shortly after use.
+            </p>
+            <p>
+              If you require immediate manual verification or expedited deletion of a temporary file before the 1-hour window expires, email us at <span class="contact-placeholder">[privacy@cyberwolf360.in]</span> with your approximate timestamp and filename.
+            </p>
+          </section>
+
+          <!-- Section 8 -->
+          <section class="privacy-section">
+            <h2>8. Changes to This Privacy Policy</h2>
+            <p>
+              We may update this Privacy Policy periodically to reflect infrastructure modifications, new browser compatibility, or regulatory updates. Any changes will be posted directly to this page with an updated "Last Updated" date at the top. We encourage you to review this page whenever you visit.
+            </p>
+          </section>
+        </div>
+
+        <div class="privacy-bottom-cta">
+          <a href="/" class="primary-btn privacy-cta-btn">
+            <span>Return to Photo Enhancer</span>
+            <span>↑</span>
+          </a>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <!-- Footer with Professional Attribution -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a class="brand" href="/">
+          <span class="brand-mark">✳</span>
+          <span class="brand-text">ClearPix<span class="dot">.</span></span>
+        </a>
+        <p class="footer-desc">Cross-platform AI photo super-resolution powered by Real-ESRGAN x4plus. Enhance photos on any device with genuine neural reconstruction.</p>
+        
+        <!-- Personal Attribution -->
+        <div class="footer-attribution" aria-label="Author and team attribution">
+          <p class="attribution-author">Made by <strong>Rahulprasad Veeramani</strong></p>
+          <p class="attribution-team"><strong class="title-bold">Branch Head (India)</strong> @ <a href="https://www.cyberwolf360.in/" target="_blank" rel="noopener noreferrer" class="cyberwolf-link" title="Visit CyberWolf Team official website (opens in a new tab)"><strong>CyberWolf Team</strong><span class="external-icon" aria-hidden="true">↗</span></a></p>
+        </div>
+      </div>
+
+      <div class="footer-links-group">
+        <div class="footer-col">
+          <h5>Application</h5>
+          <a href="/#workspace">Enhance Photo</a>
+          <a href="/#howItWorks">How it works</a>
+          <a href="/#how">Architecture</a>
+          <a href="/#creator">About the Creator</a>
+          <a href="/#faq">FAQ</a>
+          <a href="/privacy">Privacy Policy</a>
+        </div>
+        <div class="footer-col">
+          <h5>Technology</h5>
+          <span>Real-ESRGAN x4plus</span>
+          <span>Hardware Accelerated</span>
+          <span>PyTorch Neural Net</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 ClearPix AI · <a href="/privacy">Privacy Policy</a> · Zero third-party telemetry.</p>
+    </div>
+  </footer>
+
+  <!-- Theme Toggle Script for Privacy Page -->
+  <script>
+    const themeToggleBtn = document.querySelector('#themeToggleBtn');
+    if (themeToggleBtn) {
+      themeToggleBtn.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+        const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', nextTheme);
+        try {
+          localStorage.setItem('clearpix-theme', nextTheme);
+        } catch (e) {}
+        const themeMeta = document.getElementById('themeMeta');
+        if (themeMeta) {
+          themeMeta.setAttribute('content', nextTheme === 'dark' ? '#0f100e' : '#f9f9f7');
+        }
+      });
+    }
+  </script>
+</body>
+</html>
