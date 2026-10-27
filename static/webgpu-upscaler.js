@@ -51,14 +51,11 @@
         const adapterName = info.description || info.device || info.architecture || 'Hardware GPU';
         const vendor = info.vendor || '';
 
-        // Safely test device acquisition and listen for device loss
+        // Safely test device acquisition
         const device = await adapter.requestDevice();
-        this.gpuDevice = device;
-        device.lost.then((lossInfo) => {
-          console.warn('[WebGPU] Graphics device was lost:', lossInfo.reason, lossInfo.message);
-          this.session = null;
-          this.gpuDevice = null;
-        });
+        if (device && typeof device.destroy === 'function') {
+          device.destroy();
+        }
 
         this.isDeviceSupported = true;
         this.adapterInfo = {

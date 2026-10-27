@@ -271,15 +271,15 @@
                 <span class="scale-note" id="engineStatusNote">Detecting WebGPU capability...</span>
               </div>
               <div class="engine-selector" role="radiogroup" aria-label="Select processing preference">
-                <button type="button" class="engine-pill active" data-engine="auto" role="radio" aria-checked="true" id="engineBtnAuto">
+                <button type="button" class="engine-pill active" data-engine="auto" role="radio" aria-checked="true" tabindex="0" id="engineBtnAuto">
                   <div class="engine-pill-header">
                     <span class="engine-badge badge-auto">⚡ Recommended</span>
                     <strong class="engine-title">Automatic</strong>
                   </div>
-                  <span class="engine-desc" id="engineAutoText">Fastest available: Browser GPU (WebGPU) if supported, otherwise Server AI</span>
+                  <span class="engine-desc" id="engineAutoText">Browser GPU (WebGPU) on-device super-resolution. Pure client execution.</span>
                 </button>
 
-                <button type="button" class="engine-pill" data-engine="webgpu" role="radio" aria-checked="false" id="engineBtnWebgpu">
+                <button type="button" class="engine-pill" data-engine="webgpu" role="radio" aria-checked="false" tabindex="-1" id="engineBtnWebgpu">
                   <div class="engine-pill-header">
                     <span class="engine-badge badge-local">🔒 100% On-Device</span>
                     <strong class="engine-title">Browser GPU (WebGPU)</strong>
@@ -287,12 +287,12 @@
                   <span class="engine-desc" id="engineWebgpuText">Real-ESRGAN Compact on your local graphics card. Zero image upload.</span>
                 </button>
 
-                <button type="button" class="engine-pill" data-engine="server" role="radio" aria-checked="false" id="engineBtnServer">
+                <button type="button" class="engine-pill" data-engine="server" role="radio" aria-checked="false" tabindex="-1" id="engineBtnServer">
                   <div class="engine-pill-header">
                     <span class="engine-badge badge-server">☁️ Backend Server</span>
                     <strong class="engine-title">Server AI (Real-ESRGAN)</strong>
                   </div>
-                  <span class="engine-desc">PyTorch Real-ESRGAN x4plus (RRDBNet) with dedicated hardware accelerator.</span>
+                  <span class="engine-desc">PyTorch Real-ESRGAN x4plus (RRDBNet). Free tier host (512 MB RAM limit — recommended for images under 2 MP).</span>
                 </button>
               </div>
             </div>

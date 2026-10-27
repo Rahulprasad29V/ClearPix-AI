@@ -152,35 +152,30 @@ async function initWebGPUProbe() {
 
       if (webgpuSupportStatus.supported) {
         const gpuName = webgpuSupportStatus.adapterName || 'GPU Hardware';
-        if (engineStatusNote) {
+        if (engineStatusNote && selectedEngine === 'auto') {
           engineStatusNote.textContent = `Hardware WebGPU ready (${gpuName})`;
         }
         if (engineAutoText) {
-          engineAutoText.textContent = `On-device WebGPU active (${gpuName}). Fallback to Server AI if needed.`;
+          engineAutoText.textContent = `On-device WebGPU active (${gpuName}). Pure client execution.`;
         }
         if (engineWebgpuText) {
           engineWebgpuText.textContent = `Real-ESRGAN Compact on client GPU (${gpuName}). Zero image upload.`;
         }
         if (engineBtnWebgpu) {
-          engineBtnWebgpu.disabled = false;
           engineBtnWebgpu.title = 'Accelerate on local GPU';
         }
       } else {
-        if (engineStatusNote) {
+        if (engineStatusNote && selectedEngine === 'auto') {
           engineStatusNote.textContent = `WebGPU not supported in this browser (${webgpuSupportStatus.reason})`;
         }
         if (engineAutoText) {
-          engineAutoText.textContent = `Server AI (Real-ESRGAN x4plus) active. Browser does not support WebGPU.`;
+          engineAutoText.textContent = `Browser does not support WebGPU. Select Server AI to enhance.`;
         }
         if (engineWebgpuText) {
           engineWebgpuText.textContent = `Unavailable: ${webgpuSupportStatus.reason}`;
         }
         if (engineBtnWebgpu) {
-          engineBtnWebgpu.disabled = true;
           engineBtnWebgpu.title = `WebGPU unavailable: ${webgpuSupportStatus.reason}`;
-        }
-        if (selectedEngine === 'webgpu') {
-          setEnginePreference('auto');
         }
       }
     } catch (e) {
@@ -196,20 +191,67 @@ async function initWebGPUProbe() {
 
 // Engine Preference Switching
 function setEnginePreference(engine) {
+  if (!['auto', 'webgpu', 'server'].includes(engine)) return;
   selectedEngine = engine;
+  console.info(`[Engine Selection] Active engine set to: '${selectedEngine}'`);
+
   enginePills.forEach(pill => {
     const isMatch = pill.getAttribute('data-engine') === engine;
     pill.classList.toggle('active', isMatch);
     pill.setAttribute('aria-checked', isMatch ? 'true' : 'false');
+    pill.setAttribute('tabindex', isMatch ? '0' : '-1');
   });
+
+  if (engineStatusNote) {
+    if (engine === 'webgpu') {
+      const gpuName = (webgpuSupportStatus && webgpuSupportStatus.adapterName) || 'Local GPU';
+      engineStatusNote.textContent = webgpuSupportStatus.supported
+        ? `Browser GPU selected (${gpuName}) · 100% On-Device`
+        : `Browser GPU selected · ${webgpuSupportStatus.reason}`;
+    } else if (engine === 'server') {
+      engineStatusNote.textContent = 'Server AI selected (Real-ESRGAN x4plus · 512 MB server RAM limit)';
+    } else {
+      engineStatusNote.textContent = webgpuSupportStatus.supported
+        ? `Automatic mode · WebGPU preferred (${webgpuSupportStatus.adapterName || 'GPU Hardware'})`
+        : `Automatic mode · WebGPU unavailable (${webgpuSupportStatus.reason})`;
+    }
+  }
 }
 
 if (enginePills && enginePills.length > 0) {
-  enginePills.forEach(pill => {
-    pill.addEventListener('click', () => {
-      if (pill.disabled) return;
-      const engine = pill.getAttribute('data-engine');
-      setEnginePreference(engine);
+  enginePills.forEach((pill, idx) => {
+    pill.addEventListener('click', (e) => {
+      const targetPill = (e.target && e.target.closest('.engine-pill')) || pill;
+      const engine = targetPill.getAttribute('data-engine');
+      if (engine) {
+        setEnginePreference(engine);
+        targetPill.focus();
+      }
+    });
+
+    pill.addEventListener('keydown', (e) => {
+      let nextIdx = null;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        nextIdx = (idx + 1) % enginePills.length;
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        nextIdx = (idx - 1 + enginePills.length) % enginePills.length;
+      } else if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        const engine = pill.getAttribute('data-engine');
+        if (engine) setEnginePreference(engine);
+        return;
+      }
+
+      if (nextIdx !== null) {
+        const nextPill = enginePills[nextIdx];
+        const nextEngine = nextPill.getAttribute('data-engine');
+        if (nextEngine) {
+          setEnginePreference(nextEngine);
+          nextPill.focus();
+        }
+      }
     });
   });
 }
@@ -410,6 +452,35 @@ const HONEST_STAGES = [
   },
 ];
 
+// WebGPU Honest Processing Stages
+const WEBGPU_HONEST_STAGES = [
+  {
+    title: 'Preparing your image',
+    desc: 'Decoding image in browser memory and extracting color channels...',
+    inline: '1. Validation',
+  },
+  {
+    title: 'Initializing WebGPU pipeline',
+    desc: () => `Compiling Real-ESRGAN Compact ONNX shaders on ${(webgpuSupportStatus && webgpuSupportStatus.adapterName) || 'local GPU'}...`,
+    inline: '2. Shader Compile',
+  },
+  {
+    title: 'Running WebGPU super-resolution',
+    desc: () => `Executing tiled neural upscaling on ${(webgpuSupportStatus && webgpuSupportStatus.adapterName) || 'local GPU'}...`,
+    inline: '3. GPU Inference',
+  },
+  {
+    title: 'Reconstructing image details',
+    desc: 'Synthesizing super-resolved micro-textures and assembling tiled boundaries...',
+    inline: '4. Tile Assembly',
+  },
+  {
+    title: 'Preparing enhanced image',
+    desc: 'Preserving color channels and encoding lossless PNG in browser memory...',
+    inline: '5. PNG Encoding',
+  },
+];
+
 // Honest Status Stages Updater
 function updateHonestStages(elapsedSecs) {
   let currentStageIndex = 0;
@@ -419,15 +490,19 @@ function updateHonestStages(elapsedSecs) {
   else if (elapsedSecs < 35.0) currentStageIndex = 3;
   else currentStageIndex = 4;
 
-  const currentStage = HONEST_STAGES[currentStageIndex];
+  const isLocalWebGPU = selectedEngine === 'webgpu' || (selectedEngine === 'auto' && webgpuSupportStatus.supported);
+  const currentStage = isLocalWebGPU ? WEBGPU_HONEST_STAGES[currentStageIndex] : HONEST_STAGES[currentStageIndex];
 
   // Update 3D Loading Screen Elements
   if (procStatusTitle) {
     procStatusTitle.textContent = currentStage.title;
   }
   if (procStatusDesc) {
-    const descText = typeof currentStage.desc === 'function' ? currentStage.desc() : currentStage.desc;
-    procStatusDesc.textContent = descText;
+    const isTileProgress = procStatusDesc.textContent && procStatusDesc.textContent.includes('tile');
+    if (!isTileProgress) {
+      const descText = typeof currentStage.desc === 'function' ? currentStage.desc() : currentStage.desc;
+      procStatusDesc.textContent = descText;
+    }
   }
 
   // Update 3D Stage Pills
@@ -457,7 +532,10 @@ function updateHonestStages(elapsedSecs) {
   });
 
   if (progressStatus) {
-    progressStatus.textContent = currentStage.title;
+    const isTileProgress = progressStatus.textContent && progressStatus.textContent.includes('tile');
+    if (!isTileProgress) {
+      progressStatus.textContent = currentStage.title;
+    }
   }
 }
 
@@ -466,6 +544,7 @@ function setEnhancingState(isEnhancing) {
   if (enhanceBtn) enhanceBtn.disabled = isEnhancing;
   if (cancelSelectBtn) cancelSelectBtn.disabled = isEnhancing;
   scalePills.forEach(p => p.disabled = isEnhancing);
+  enginePills.forEach(p => p.disabled = isEnhancing);
 
   if (isEnhancing) {
     if (btnSpinner) btnSpinner.classList.remove('hidden');
@@ -485,7 +564,12 @@ function setEnhancingState(isEnhancing) {
         procScaleText.textContent = `${selectedScale}× Super-Resolution`;
       }
       if (procDeviceText) {
-        procDeviceText.textContent = `Real-ESRGAN · ${activeDeviceName}`;
+        if (selectedEngine === 'webgpu' || (selectedEngine === 'auto' && webgpuSupportStatus.supported)) {
+          const gpuName = (webgpuSupportStatus && webgpuSupportStatus.adapterName) || 'Browser WebGPU';
+          procDeviceText.textContent = `WebGPU · ${gpuName}`;
+        } else {
+          procDeviceText.textContent = `Server AI · ${activeDeviceName}`;
+        }
       }
     }
 
@@ -523,6 +607,7 @@ function handleCancelEnhance() {
     enhanceAbortController.abort();
     enhanceAbortController = null;
   }
+  isEnhancing = false;
   setEnhancingState(false);
   if (configCard) configCard.classList.remove('hidden');
   showError('Enhancement was cancelled by user.');
@@ -545,6 +630,7 @@ function generateClientDownloadName(fileName, scale) {
 
 // Server Enhancement Execution
 async function executeServerEnhance(signal) {
+  console.info('[Server AI] Starting remote enhancement via POST /api/enhance (Server limit: 512 MB RAM)...');
   const formData = new FormData();
   formData.append('image', selectedFile);
   formData.append('scale', selectedScale);
@@ -580,6 +666,9 @@ async function executeWebGPUEnhance(signal) {
     throw new Error('WebGPU super-resolution module is not loaded.');
   }
 
+  const gpuName = (webgpuSupportStatus && webgpuSupportStatus.adapterName) || 'Browser WebGPU';
+  console.info(`[Browser GPU] Processing 100% on-device via WebGPU (${gpuName}) · Zero server upload.`);
+
   // WebGPU progress callback updates UI status & stages
   const onProgress = (pct, stageName) => {
     if (progressStatus) progressStatus.textContent = stageName;
@@ -602,7 +691,6 @@ async function executeWebGPUEnhance(signal) {
   };
 
   if (procDeviceText) {
-    const gpuName = (webgpuSupportStatus && webgpuSupportStatus.adapterName) || 'Browser WebGPU';
     procDeviceText.textContent = `WebGPU · ${gpuName}`;
   }
 
@@ -616,6 +704,11 @@ async function executeWebGPUEnhance(signal) {
   const blobUrl = URL.createObjectURL(res.blob);
   const downloadName = generateClientDownloadName(selectedFile.name, selectedScale);
 
+  const outW = res.width;
+  const outH = res.height;
+  const origW = originalWidth || Math.round(outW / selectedScale);
+  const origH = originalHeight || Math.round(outH / selectedScale);
+
   return {
     status: 'success',
     preview_url: blobUrl,
@@ -625,19 +718,23 @@ async function executeWebGPUEnhance(signal) {
     original_filename: selectedFile.name,
     scale: selectedScale,
     duration_seconds: parseFloat(res.durationSeconds.toFixed(2)),
-    device: res.deviceName || 'WebGPU Accelerator',
+    device: res.deviceName || gpuName,
     engine: 'Browser GPU (100% On-Device WebGPU)',
     isLocalWebGPU: true,
-    original_dimensions: { width: originalWidth, height: originalHeight },
-    output_dimensions: { width: res.width, height: res.height },
+    original_dimensions: { width: origW, height: origH },
+    output_dimensions: { width: outW, height: outH },
   };
 }
 
 // Enhance Submission
-if (enhanceBtn) {
-  enhanceBtn.addEventListener('click', async () => {
-    if (!selectedFile || enhanceBtn.disabled) return;
+let isEnhancing = false;
 
+if (enhanceBtn) {
+  enhanceBtn.addEventListener('click', async (e) => {
+    if (e && typeof e.preventDefault === 'function') e.preventDefault();
+    if (!selectedFile || isEnhancing || enhanceBtn.disabled) return;
+
+    isEnhancing = true;
     hideError();
     setEnhancingState(true);
 
@@ -647,55 +744,67 @@ if (enhanceBtn) {
     try {
       let data = null;
 
+      console.info(
+        `[ClearPix Engine] Dispatching request: engine='${selectedEngine}', scale=${selectedScale}×, ` +
+        `dimensions=${originalWidth}×${originalHeight}`
+      );
+
       if (selectedEngine === 'webgpu') {
-        // Strict WebGPU requirement: do NOT send to server
+        // STRICT WebGPU Mode: Process 100% on-device. Pure client execution.
         if (!webgpuSupportStatus.supported) {
-          throw new Error(`WebGPU is unavailable: ${webgpuSupportStatus.reason}. Please select Server AI or Automatic.`);
+          throw new Error(
+            `WebGPU is unavailable in this browser: ${webgpuSupportStatus.reason}. ` +
+            `Please use a WebGPU-compatible browser (e.g., Chrome or Edge) or select Server AI.`
+          );
         }
         data = await executeWebGPUEnhance(signal);
 
       } else if (selectedEngine === 'auto') {
-        // Automatic preference: try local WebGPU first if supported, fallback to Server AI on failure
+        // Automatic Mode: Try local WebGPU first.
+        // If it fails, report clear error and do NOT silently call Server AI!
         if (webgpuSupportStatus.supported && typeof window.ClearPixWebGPU !== 'undefined') {
+          console.info('[Auto Engine] Attempting local WebGPU super-resolution...');
           try {
-            console.info('[Auto Engine] Attempting local WebGPU super-resolution...');
             data = await executeWebGPUEnhance(signal);
           } catch (gpuErr) {
             if (gpuErr.name === 'AbortError') throw gpuErr; // User cancelled
-            console.warn('[Auto Engine] WebGPU execution failed; seamlessly falling back to Server AI:', gpuErr);
-            if (procDeviceText) {
-              procDeviceText.textContent = `Server AI · ${activeDeviceName} (Fallback)`;
-            }
-            if (progressStatus) {
-              progressStatus.textContent = 'Switching seamlessly to Server AI...';
-            }
-            data = await executeServerEnhance(signal);
+            console.error('[Auto Engine] Local WebGPU execution failed:', gpuErr);
+            // CRITICAL: Do NOT silently call executeServerEnhance()!
+            throw new Error(
+              `On-device WebGPU processing failed on your graphics hardware: ${gpuErr.message || 'GPU out of memory'}. ` +
+              `You can retry, or manually select 'Server AI' (Note: 512 MB server memory limit).`
+            );
           }
         } else {
-          // WebGPU not available on device, route cleanly to Server AI
-          console.info('[Auto Engine] WebGPU not supported on this device/browser. Routing to Server AI.');
-          data = await executeServerEnhance(signal);
+          // WebGPU not available in browser
+          console.info('[Auto Engine] WebGPU not available in this browser:', webgpuSupportStatus.reason);
+          throw new Error(
+            `WebGPU is not supported in this browser (${webgpuSupportStatus.reason}). ` +
+            `Please manually select 'Server AI' to process via backend server (Note: 512 MB server RAM limit).`
+          );
         }
 
       } else {
         // Server AI explicitly selected by user
+        console.info('[Server AI] Executing remote enhancement on backend server (/api/enhance)...');
         data = await executeServerEnhance(signal);
       }
 
-      // Success: populate comparison viewer with smooth transition
+      // Success: immediately populate comparison viewer without triggering a second request
       displayComparisonResult(data);
 
     } catch (err) {
       if (err.name === 'AbortError') {
-        console.info('Enhancement request was aborted.');
+        console.info('[ClearPix] Enhancement request was cancelled.');
         showError('Enhancement was cancelled.');
       } else {
-        console.error('Enhance request error:', err);
+        console.error('[ClearPix] Enhance request error:', err);
         showError(err.message || 'An error occurred during enhancement.');
       }
       setEnhancingState(false);
       if (configCard) configCard.classList.remove('hidden');
     } finally {
+      isEnhancing = false;
       enhanceAbortController = null;
     }
   });
@@ -703,87 +812,95 @@ if (enhanceBtn) {
 
 // Display AI Output in Comparison Viewer
 function displayComparisonResult(data) {
-  hideError();
-  setEnhancingState(false);
-  if (configCard) configCard.classList.add('hidden');
-  if (processingScreen) processingScreen.classList.add('hidden');
-  editor.classList.remove('hidden');
+  try {
+    hideError();
+    setEnhancingState(false);
+    if (configCard) configCard.classList.add('hidden');
+    if (processingScreen) processingScreen.classList.add('hidden');
+    if (editor) editor.classList.remove('hidden');
 
-  currentPreviewUrl = data.preview_url;
-  currentDownloadUrl = data.download_url;
-  currentDownloadName = data.download_name || data.output_filename || `clearpix_enhanced_${data.scale}x.png`;
+    currentPreviewUrl = data.preview_url;
+    currentDownloadUrl = data.download_url;
+    currentDownloadName = data.download_name || data.output_filename || `clearpix_enhanced_${data.scale}x.png`;
 
-  const origW = data.original_dimensions.width;
-  const origH = data.original_dimensions.height;
-  const outW = data.output_dimensions.width;
-  const outH = data.output_dimensions.height;
+    const origW = (data.original_dimensions && data.original_dimensions.width) || originalWidth || Math.round(data.output_dimensions.width / data.scale);
+    const origH = (data.original_dimensions && data.original_dimensions.height) || originalHeight || Math.round(data.output_dimensions.height / data.scale);
+    const outW = (data.output_dimensions && data.output_dimensions.width) || (origW * data.scale);
+    const outH = (data.output_dimensions && data.output_dimensions.height) || (origH * data.scale);
 
-  if (fileNameEl) fileNameEl.textContent = data.original_filename;
-  if (dimensionsEl) dimensionsEl.textContent = `Original: ${origW} × ${origH} px`;
+    if (fileNameEl) fileNameEl.textContent = data.original_filename || 'photo.png';
+    if (dimensionsEl) dimensionsEl.textContent = `Original: ${origW} × ${origH} px`;
 
-  const isWebGPU = Boolean(data.isLocalWebGPU);
+    const isWebGPU = Boolean(data.isLocalWebGPU);
 
-  if (afterBadge) {
-    afterBadge.textContent = isWebGPU ? `WEBGPU AI ${data.scale}×` : `AI ENHANCED ${data.scale}×`;
-  }
-
-  if (outputDimensionsEl) {
-    if (isWebGPU) {
-      outputDimensionsEl.textContent = `WebGPU AI (${outW} × ${outH} px) · ${data.duration_seconds}s on ${data.device}`;
-    } else {
-      outputDimensionsEl.textContent = `Real-ESRGAN AI (${outW} × ${outH} px) · ${data.duration_seconds}s on ${(data.device || 'CPU').toUpperCase()}`;
+    if (afterBadge) {
+      afterBadge.textContent = isWebGPU ? `WEBGPU AI ${data.scale}×` : `AI ENHANCED ${data.scale}×`;
     }
-  }
 
-  // Populate comprehensive output metadata grid
-  if (metaOriginal) metaOriginal.textContent = `${origW} × ${origH} px`;
-  if (metaEnhanced) metaEnhanced.textContent = `${outW} × ${outH} px`;
-  if (metaScale) metaScale.textContent = isWebGPU ? `${data.scale}× Real-ESRGAN Compact` : `${data.scale}× Real-ESRGAN x4plus`;
-  if (metaDuration) metaDuration.textContent = `${data.duration_seconds}s`;
-
-  if (metaDevice) {
-    if (isWebGPU) {
-      metaDevice.textContent = data.device;
-    } else {
-      const devUpper = (data.device || 'CPU').toUpperCase();
-      const devLabel = devUpper === 'MPS' ? 'Server GPU (Apple Silicon MPS)' :
-                       devUpper === 'CUDA' ? 'Server GPU (NVIDIA CUDA)' :
-                       `Server ${devUpper}`;
-      metaDevice.textContent = devLabel;
+    if (outputDimensionsEl) {
+      if (isWebGPU) {
+        outputDimensionsEl.textContent = `WebGPU AI (${outW} × ${outH} px) · ${data.duration_seconds}s on ${data.device}`;
+      } else {
+        outputDimensionsEl.textContent = `Real-ESRGAN AI (${outW} × ${outH} px) · ${data.duration_seconds}s on ${(data.device || 'CPU').toUpperCase()}`;
+      }
     }
-  }
 
-  if (metaEngine) {
-    if (isWebGPU) {
-      metaEngine.textContent = 'Browser GPU (100% On-Device)';
-      metaEngine.className = 'meta-val highlight-val';
-    } else {
-      metaEngine.textContent = 'Server AI (Remote Host)';
-      metaEngine.className = 'meta-val';
+    // Populate comprehensive output metadata grid
+    if (metaOriginal) metaOriginal.textContent = `${origW} × ${origH} px`;
+    if (metaEnhanced) metaEnhanced.textContent = `${outW} × ${outH} px`;
+    if (metaScale) metaScale.textContent = isWebGPU ? `${data.scale}× Real-ESRGAN Compact` : `${data.scale}× Real-ESRGAN x4plus`;
+    if (metaDuration) metaDuration.textContent = `${data.duration_seconds}s`;
+
+    if (metaDevice) {
+      if (isWebGPU) {
+        metaDevice.textContent = data.device;
+      } else {
+        const devUpper = (data.device || 'CPU').toUpperCase();
+        const devLabel = devUpper === 'MPS' ? 'Server GPU (Apple Silicon MPS)' :
+                         devUpper === 'CUDA' ? 'Server GPU (NVIDIA CUDA)' :
+                         `Server ${devUpper}`;
+        metaDevice.textContent = devLabel;
+      }
     }
-  }
 
-  // Set original preview image
-  original.src = originalObjectUrl;
-  // Set enhanced preview image
-  enlarged.src = currentPreviewUrl;
+    if (metaEngine) {
+      if (isWebGPU) {
+        metaEngine.textContent = 'Browser GPU (100% On-Device)';
+        metaEngine.className = 'meta-val highlight-val';
+      } else {
+        metaEngine.textContent = 'Server AI (Remote Host)';
+        metaEngine.className = 'meta-val';
+      }
+    }
 
-  enlarged.onload = () => {
-    updateNativeScale();
+    // Set original preview image
+    if (original && originalObjectUrl) {
+      original.src = originalObjectUrl;
+    }
+    // Set enhanced preview image
+    if (enlarged && currentPreviewUrl) {
+      enlarged.onload = () => {
+        updateNativeScale();
+        setZoom(1.0, true);
+      };
+      enlarged.src = currentPreviewUrl;
+    }
+
+    // Reset zoom & pan to default fit
     setZoom(1.0, true);
-  };
 
-  // Reset zoom & pan to default fit
-  setZoom(1.0, true);
-
-  // Initialize comparison divider at 50%
-  setReveal(50);
-  if (status) {
-    if (isWebGPU) {
-      status.textContent = `Enhanced ${origW}×${origH} to ${outW}×${outH} px locally in browser on ${data.device} in ${data.duration_seconds}s (Zero data uploaded).`;
-    } else {
-      status.textContent = `Enhanced ${origW}×${origH} to ${outW}×${outH} px using Real-ESRGAN x4plus in ${data.duration_seconds}s on ${(data.device || 'CPU').toUpperCase()}.`;
+    // Initialize comparison divider at 50%
+    setReveal(50);
+    if (status) {
+      if (isWebGPU) {
+        status.textContent = `Enhanced ${origW}×${origH} to ${outW}×${outH} px locally in browser on ${data.device} in ${data.duration_seconds}s (Zero data uploaded).`;
+      } else {
+        status.textContent = `Enhanced ${origW}×${origH} to ${outW}×${outH} px using Real-ESRGAN x4plus in ${data.duration_seconds}s on ${(data.device || 'CPU').toUpperCase()}.`;
+      }
     }
+    console.info(`[ClearPix] Comparison view rendered: ${origW}×${origH} -> ${outW}×${outH} (${data.scale}×, ${data.duration_seconds}s, WebGPU=${isWebGPU})`);
+  } catch (displayErr) {
+    console.error('[ClearPix] Error rendering comparison result:', displayErr);
   }
 }
 
@@ -1003,7 +1120,9 @@ if (slider) {
 if (retryBtn) {
   retryBtn.addEventListener('click', () => {
     hideError();
-    if (enhanceBtn) enhanceBtn.click();
+    if (enhanceBtn && !isEnhancing) {
+      enhanceBtn.click();
+    }
   });
 }
 
